@@ -1,0 +1,90 @@
+.user-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.google-login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Botón de Google */
+.google-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #ffffff;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.google-login-btn:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.google-icon {
+    width: 22px;
+    height: 22px;
+}
+
+/* Perfil de usuario */
+.user-profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: left;
+    padding: 0;
+}
+
+.logout-btn:hover {
+    text-decoration: underline;
+}
+
+/* Mensajes de error */
+.auth-error {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 8px;
+    padding: 8px;
+    background: #fce8e6;
+    border-radius: 4px;
+}

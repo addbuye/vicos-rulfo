@@ -1,0 +1,307 @@
+/* css/sidebar.css */
+
+a {
+    text-decoration: none;
+    background-color: transparent;
+}
+a:hover {
+    color: #0056b3; /* Consider adjusting hover color to fit theme */
+    text-decoration: none; /* Often preferred over underline in navs */
+}
+
+a:not([href]):not([tabindex]) {
+    color: inherit;
+    text-decoration: none; }
+a:not([href]):not([tabindex]):hover, a:not([href]):not([tabindex]):focus {
+    color: inherit;
+    text-decoration: none; }
+a:not([href]):not([tabindex]):focus {
+    outline: 0; }
+
+.list-unstyled {
+    padding-left: 0;
+    list-style: none; }
+
+.list-inline {
+    padding-left: 0;
+    list-style: none; }
+
+.list-inline-item {
+    display: inline-block; }
+.list-inline-item:not(:last-child) {
+    margin-right: 0.5rem; }
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    color: inherit; /* Inherits color from parent, check if parent has correct color */
+    background: #f8f9fa; /* Explicitly set background if needed, matching index.html */
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    position: relative; }
+#sidebar.active {
+    margin-left: -250px; }
+#sidebar.active .custom-menu {
+    margin-right: -50px; /* Adjust if button size/position changes */
+}
+#sidebar h1 {
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+#sidebar h1 .logo { /* If you have a logo class inside h1 */
+    color: inherit;
+}
+#sidebar ul.components {
+    padding: 0;
+}
+#sidebar ul li {
+    font-size: 1rem; /* Standard base font size */
+}
+#sidebar ul li > ul { /* Nested lists */
+    margin-left: 15px; /* Indentation for sub-items */
+    padding-left: 0; /* Reset padding if needed */
+}
+#sidebar ul li > ul li {
+    font-size: 0.9rem; /* Slightly smaller font for sub-items */
+}
+
+/* Base style for all links in the sidebar list */
+#sidebar ul li a {
+    padding: 10px 15px; /* Add horizontal padding */
+    display: block;
+    color: #343a40; /* Darker color for better contrast on light bg */
+    border-bottom: 1px solid #dee2e6; /* Light border for separation */
+    text-decoration: none; /* Ensure no underline */
+    transition: background-color 0.2s ease; /* Smooth hover */
+}
+#sidebar ul li a:hover {
+    color: #0056b3; /* Link hover color */
+    background-color: #e9ecef; /* Subtle background on hover */
+    text-decoration: none;
+}
+#sidebar ul li.active > a { /* Style for the active page link */
+    background: #0d6efd; /* Example primary color */
+    color: #fff;
+    font-weight: 500;
+}
+
+/* --- Dropdown Toggle Specific Styles --- */
+/* Target links that act as dropdown toggles */
+#sidebar ul li a[data-bs-toggle="collapse"],
+#sidebar ul li a.dropdown-toggle {
+    position: relative; /* Needed for absolute positioning of ::after */
+    /* Add padding on the right ONLY to toggles to make space for the arrow */
+    /* Adjust '2em' value as needed for desired spacing */
+    padding-right: 2em;
+}
+
+/* Style the dropdown arrow pseudo-element */
+#sidebar ul li a[data-bs-toggle="collapse"]::after,
+#sidebar ul li a.dropdown-toggle::after {
+    display: block; /* Use block for positioning */
+    position: absolute;
+    top: 50%;
+    /* Position the arrow within the padding area */
+    /* Adjust '0.8em' - should be less than padding-right */
+    right: 0.8em;
+    transform: translateY(-50%);
+    content: ""; /* Required for pseudo-elements */
+    width: 0;
+    height: 0;
+    border-left: 0.3em solid transparent; /* Triangle pointing right */
+    border-right: 0.3em solid transparent;
+    border-top: 0.3em solid; /* Color comes from parent 'a' tag */
+    color: inherit; /* Inherit color from the link */
+    transition: transform 0.35s ease; /* Smooth rotation */
+}
+
+/* Style for when the collapse is shown (arrow points down) */
+#sidebar ul li a[data-bs-toggle="collapse"]:not(.collapsed)::after,
+#sidebar ul li a.dropdown-toggle:not(.collapsed)::after {
+    transform: translateY(-50%) rotate(90deg); /* Rotate arrow down */
+}
+/* --- End Dropdown Toggle Styles --- */
+
+
+@media (max-width: 991.98px) {
+    #sidebar {
+        margin-left: -250px; }
+    #sidebar.active {
+        margin-left: 0; }
+    #sidebar .custom-menu {
+        margin-right: -50px !important; /* Check if !important is necessary */
+        top: 10px !important; } }
+
+#sidebar .custom-menu {
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    margin-right: -20px; /* Adjust to position button partly outside */
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s; }
+@media (prefers-reduced-motion: reduce) {
+    #sidebar .custom-menu {
+        -webkit-transition: none;
+        -o-transition: none;
+        transition: none; } }
+#sidebar .custom-menu .btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    /* Ensure button styles fit the theme */
+    background-color: #6c757d; /* Example background */
+    border: none;
+    color: white;
+}
+#sidebar .custom-menu .btn:hover {
+    background-color: #5a6268;
+}
+
+
+/* General Bootstrap Collapse/Fade styles (can often be removed if Bootstrap CSS is loaded correctly) */
+.fade {
+    -webkit-transition: opacity 0.15s linear;
+    -o-transition: opacity 0.15s linear;
+    transition: opacity 0.15s linear; }
+@media (prefers-reduced-motion: reduce) {
+    .fade {
+        -webkit-transition: none;
+        -o-transition: none;
+        transition: none; } }
+.fade:not(.show) {
+    opacity: 0; }
+
+.collapse:not(.show) {
+    display: none; }
+
+.collapsing {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    -webkit-transition: height 0.35s ease;
+    -o-transition: height 0.35s ease;
+    transition: height 0.35s ease; }
+@media (prefers-reduced-motion: reduce) {
+    .collapsing {
+        -webkit-transition: none;
+        -o-transition: none;
+        transition: none; } }
+
+/* Removed generic .dropdown styles as they might conflict with Bootstrap */
+
+.footer {
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+    margin-top: 20px;
+}
+.footer p {
+    color: #6c757d; /* Softer color for footer text */
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
+
+/* --- Auxbar Styles --- */
+#auxbar {
+    min-width: 250px;
+    max-width: 250px;
+    color: #fff;
+    background: #343a40; /* Dark background for auxbar */
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0px 0px 10px 1px #e5e5e5;
+    position: relative; }
+#auxbar .h6 { /* If you use h6 inside auxbar */
+    color: inherit; }
+#auxbar.active {
+    margin-right: -250px; }
+#auxbar.active .custom-menu {
+    margin-left: -50px; /* Adjust if button size/position changes */
+}
+#auxbar h2 {
+    font-weight: 500;
+    font-size: 1.2rem; /* Example size */
+    color: #adb5bd; /* Lighter color for heading */
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0 1rem; /* Match padding of list items */
+}
+#auxbar ul.components {
+    padding: 0;
+}
+#auxbar ul li {
+    font-size: 1rem;
+}
+#auxbar ul li > ul { /* Nested lists in auxbar */
+    margin-left: 15px;
+    padding-left: 0;
+}
+#auxbar ul li > ul li {
+    font-size: 0.9rem;
+}
+#auxbar ul li a {
+    padding: 10px 15px; /* Consistent padding */
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+#auxbar ul li a:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1); /* Subtle hover background */
+}
+#auxbar ul li.active > a { /* Active style in auxbar */
+    background: transparent; /* Or a different active style */
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Auxbar Responsive (similar to sidebar) */
+@media (max-width: 991.98px) {
+    #auxbar {
+        margin-right: -250px; /* Hide off-screen to the right */
+    }
+    #auxbar.active {
+        margin-right: 0; /* Bring it back on screen */
+    }
+    #auxbar .custom-menu {
+        /* Adjust positioning if needed for mobile */
+        margin-left: -50px !important;
+        top: 10px !important;
+    }
+}
+
+#auxbar .custom-menu {
+    display: inline-block;
+    position: absolute;
+    top: 20px;
+    left: 0;
+    margin-left: -20px; /* Position button partly outside */
+    -webkit-transition: 0.3s;
+    -o-transition: 0.3s;
+    transition: 0.3s; }
+@media (prefers-reduced-motion: reduce) {
+    #auxbar .custom-menu {
+        -webkit-transition: none;
+        -o-transition: none;
+        transition: none; } }
+#auxbar .custom-menu .btn {
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background-color: #f8f9fa; /* Light button on dark bar */
+    color: #343a40;
+}
+#auxbar .custom-menu .btn:hover {
+    background-color: #e2e6ea;
+}
+
+#auxbar a {
+    text-decoration: none;
+}

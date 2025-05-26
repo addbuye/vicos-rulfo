@@ -1,0 +1,33 @@
+{
+  "name": "rulfo-ai",
+  "version": "1.0.0",
+  "description": "Backend for apply AI to Ruldo App.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/promani/mermaid.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/promani/mermaid/issues"
+  },
+  "homepage": "https://gitlab.com/promani/mermaid#readme",
+  "dependencies": {
+    "@genkit-ai/core": "^1.9.0",
+    "@genkit-ai/firebase": "^1.9.0",
+    "@genkit-ai/flow": "^0.5.17",
+    "@genkit-ai/googleai": "^1.9.0",
+    "@google-cloud/functions-framework": "^4.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.4.0",
+    "genkit": "^1.9.0",
+    "zod": "^3.24.4"
+  }
+}

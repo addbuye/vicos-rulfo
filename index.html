@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>~Rulfo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/custom.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/swagger-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-1ycn6IcaQQ40/MKBW2W4Rhis/DbILU74C1vSrLJxCq57o941Ym01SwNsOMqvEBFlcgUa6xLiPY/NS5R+E6ztJQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/highlightjs@9.16.2/styles/monokai-sublime.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="js/swagger-ui-bundle.js"></script>
+    <script src="js/swagger-ui-standalone-preset.js"></script>
+    <script src="js/render.js" defer></script>
+</head>
+<body>
+    <div class="wiki-container">
+        <nav id="sidebar" class="bg-light">
+            <div class="custom-menu">
+                <button type="button" id="sidebarCollapse" data-bs-toggle="active" data-bs-target="#sidebar" class="btn btn-secondary">
+                    <i class="fa fa-bars"></i>
+                    <span class="sr-only">Toggle Menu</span>
+                </button>
+            </div>
+
+            <div class="p-4 pt-3">
+                <img src="/assets/dogs.png" alt="Rulfo" class="m-1" />
+                <h1 class="text-end">~Rulfo</h1>
+
+                <div class="mb-3">
+                    <form action="#" class="colorlib-subscribe-form">
+                        <div class="form-group d-flex">
+                            <div class="icon"><span class="icon-paper-plane"></span></div>
+                            <input type="text" class="form-control" placeholder="Search" spellcheck="false" data-ms-editor="true">
+                        </div>
+                    </form>
+                </div>
+
+                <ul id="nav-links" class="list-unstyled components mb-5"></ul>
+
+                <div class="footer">
+                    <p>&copy; 2025 - Rulfo notes App.</p>
+                </div>
+
+            </div>
+        </nav>
+        <div class="content p-4 p-md-5 pt-5" >
+            <div id="breadcrumb-container" ></div>
+            <div id="content" class="content markdown-body p-4" ></div>
+            <div id="swagger-container" class="swagger-ui-wrapper" style="display:none;"></div>
+        </div>
+        <nav id="auxbar" class="bg-dark active">
+            <div class="custom-menu">
+                <button type="button" id="auxbarCollapse" data-bs-toggle="active" data-bs-target="#auxbar" class="btn bg-light text-dark p-0">
+                </button>
+            </div>
+
+            <div class="p-2 pt-3">
+                <div id="auth-container"></div>
+            </div>
+            <div class="p-4" id="user-menu">
+            </div>
+            <div id="notes-container">
+                <div id="notes-list" class="list-group list-group-flush border-bottom scrollarea" aria-current="true"></div>
+            </div>
+        </nav>
+    </div>
+
+    <div class="modal fade" id="pageEditorModal" tabindex="-1" aria-labelledby="pageEditorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pageEditorModalLabel">Editar/Crear Página</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="page-editor-form">
+                        <input type="hidden" id="page-id">
+
+                        <div class="mb-3">
+                            <label for="edit-page-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="edit-page-title" required>
+                        </div>
+                        <input type="hidden" id="edit-page-parent">
+                        <input type="hidden" id="edit-page-order">
+                        <div class="mb-3">
+                            <label for="edit-page-type" class="form-label">Type</label>
+                            <select class="form-select" id="edit-page-type" required>
+                                <option value="markdown" selected>Text/Markdown</option>
+                                <option value="swagger">Swagger/OpenAPI</option>
+                                <option value="mermaid">Diagram</option>
+                                <option value="file">File</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <div id="edit-page-prompt" class="alert alert-info " style="display:none;" role="alert"></div>
+                            <label for="edit-page-content" class="form-label">Content</label>
+                            <textarea class="form-control" id="edit-page-content" rows="15" style="font-family: monospace;"></textarea>
+                            <small id="pageContentHelp" class="form-text text-muted">
+                                Use Markdown o paste JSON/YAML for Swagger/OpenAPI.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-page-button">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="noteEditorModal" tabindex="-1" aria-labelledby="noteEditorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="noteEditorModalLabel">Editar/Crear Nota</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="note-editor-form">
+                        <input type="hidden" id="note-id">
+
+                        <div class="mb-3">
+                            <label for="edit-note-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="edit-note-title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-note-type" class="form-label">Type</label>
+                            <select class="form-select" id="edit-note-type" required>
+                                <option value="note" selected>1:1</option>
+                                <option value="query" selected>Query</option>
+                                <option value="json" selected>Json</option>
+                                <option value="random" selected>Random</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <div id="edit-note-prompt" class="alert alert-info " style="display:none;" role="alert"></div>
+                            <label for="edit-note-content" class="form-label">Content</label>
+                            <textarea class="form-control" id="edit-note-content" rows="15" style="font-family: monospace;"></textarea>
+                            <small id="noteContentHelp" class="form-text text-muted">
+                                Use Markdown
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-note-button">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button id="ask-ai-fab" class="btn btn-primary rounded-circle shadow"
+            style="position: fixed; bottom: 20px; right: 45%; width: 56px; height: 56px; z-index: 1050;"
+            data-bs-toggle="modal" data-bs-target="#askAiModal" title="Ask AI Assistant">
+        <i class="fa fa-robot"></i>
+    </button>
+
+    <div class="modal fade" id="askAiModal" tabindex="-1" aria-labelledby="askAiModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="askAiModalLabel">Ask AI Assistant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="ask-ai-form">
+                        <div class="mb-3">
+                            <label for="ai-question" class="form-label">Your Question:</label>
+                            <textarea class="form-control" id="ai-question" rows="4" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="ai-mode" class="form-label">Mode:</label>
+                            <select class="form-select" id="ai-mode">
+                                <option value="ask">Ask a Question</option>
+                                <option value="new_page" selected>Create New Page</option>
+                                <option value="edit_page">Incorporate Answer into Current Page</option>
+                                <option value="fix_page">Edit Current Page</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="submit-ai-question-btn">Ask AI</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
