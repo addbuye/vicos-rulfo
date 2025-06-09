@@ -1,45 +1,70 @@
 (() => {
 
   // --- Configuration ---
-  const firebaseConfig = {
-    apiKey: "__PUBLIC_API_KEY__",
-    authDomain: "__GOOGLE_PROJECT_ID__" + ".firebaseapp.com",
-    projectId: "__GOOGLE_PROJECT_ID__",
-    storageBucket: "__GOOGLE_PROJECT_ID__" + ".firebasestorage.app",
-    appId: "__PUBLIC_APP_ID__",
-  };
+  let firebaseConfig = null;
+  let currentUser = null;
+  let auth = null;
+  let db = null;
+  let storage = null;
 
   // --- Constants ---
-  const AI_SERVICE_URL = "__AI_SERVICE_URL__";
+  const AI_SERVICE_URL = "http://localhost:8080";
 
   // --- Firebase Initialization ---
-  let app;
-  if (!firebase.apps.length) {
-    app = firebase.initializeApp(firebaseConfig);
-  } else {
-    app = firebase.app(); // Get the default app if already initialized
+  async function initializeFirebase() {
+    try {
+      console.log('Fetching Firebase config...');
+      const response = await fetch('/config');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch config: ${response.statusText}`);
+      }
+      const config = await response.json();
+      console.log('Received config:', {
+        hasConfig: !!config,
+        hasFirebaseConfig: !!config.firebaseConfig,
+        configKeys: config.firebaseConfig ? Object.keys(config.firebaseConfig) : []
+      });
+      
+      firebaseConfig = config.firebaseConfig;
+      
+      if (!firebaseConfig || !firebaseConfig.apiKey) {
+        throw new Error('Invalid Firebase configuration');
+      }
+
+      let app;
+      if (!firebase.apps.length) {
+        console.log('Initializing Firebase app...');
+        app = firebase.initializeApp(firebaseConfig);
+        console.log('Firebase inicializado correctamente');
+      } else {
+        console.log('Using existing Firebase app');
+        app = firebase.app();
+      }
+
+      // Initialize Firebase services
+      auth = firebase.auth();
+      db = firebase.firestore();
+      storage = firebase.storage();
+
+      // Forzar login anónimo primero
+      try {
+        console.log('Attempting anonymous login...');
+        const userCredential = await auth.signInAnonymously();
+        currentUser = userCredential.user;
+        console.log('Login anónimo exitoso:', currentUser.uid);
+      } catch (authError) {
+        console.error('Error en login anónimo:', authError);
+        showError('Error al iniciar sesión: ' + authError.message, 'danger');
+        throw authError;
+      }
+
+      return { app, auth, db, storage };
+    } catch (error) {
+      console.error('Error inicializando Firebase:', error);
+      showError('Error al inicializar Firebase: ' + error.message, 'danger');
+      throw error;
+    }
   }
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
-
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
-  googleProvider.setCustomParameters({ prompt: 'select_account' });
-
-  // --- Mermaid Configuration ---
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose'
-  });
-
-  mermaid.registerIconPacks([
-    {
-      name: 'logos',
-      loader: () =>
-          fetch('assets/icons.json').then((res) => res.json()),
-    },
-  ]);
 
   // --- DOM Elements ---
   const contentDiv = document.getElementById('content');
@@ -70,12 +95,36 @@
   const submitAiQuestionButton = document.getElementById('submit-ai-question-btn');
 
   // --- State ---
-  let currentUser = null;
   let currentPageData = null;
   let draggedElementId = null;
 
   // --- Initialization ---
-  document.addEventListener('DOMContentLoaded', initializeWiki);
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      console.log('Starting application initialization...');
+      const { app, auth, db, storage } = await initializeFirebase();
+      
+      // Luego inicializar el resto
+      console.log('Initializing wiki...');
+      await initializeWiki();
+    } catch (error) {
+      console.error('Error en inicialización:', error);
+      showError('Error al inicializar la aplicación: ' + error.message, 'danger');
+    }
+  });
+
+  /**
+   * Auto-login function for development
+   */
+  async function autoLogin() {
+    try {
+      // Sign in anonymously
+      await auth.signInAnonymously();
+      console.log('Auto-logged in successfully');
+    } catch (error) {
+      console.error('Auto-login failed:', error);
+    }
+  }
 
   /**
    * Main initialization function.
@@ -1400,55 +1449,56 @@
   }
 
   async function askAiQuestion(question, mode) {
-    const requestBody = {
-      question: question,
-      page_id: currentPageData.id,
-    };
-    let response;
     try {
-      let path
-      switch (mode) {
-        case 'sumarize':
-          path = '/sumarize'
-          break;
-        case 'ask':
-          path = '/ask'
-          break;
-        case 'edit_page':
-          path = '/compose'
-          break;
-        case 'new_page':
-          path = '/compose'
-          delete requestBody.page_id
-          break;
-        case 'fix_page':
-          path = '/edit'
-          break;
-      }
+        if (!currentUser) {
+            console.log('No hay usuario, intentando login anónimo...');
+            const userCredential = await auth.signInAnonymously();
+            currentUser = userCredential.user;
+            console.log('Login anónimo exitoso:', currentUser.uid);
+        }
 
-      const idToken = await currentUser.getIdToken();
-      response = await fetch(AI_SERVICE_URL + path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}`},
-        body: JSON.stringify(requestBody)
-      });
+        const token = await currentUser.getIdToken(true);
+        console.log('Token obtenido:', token ? 'Sí' : 'No');
+        console.log('Token completo:', token); // Log del token completo para debug
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: "Unknown error from AI service." }));
-        throw new Error(`AI service request failed: ${response.status} ${response.statusText}. ${errorData.message || ''}`);
-      }
+        if (!token) {
+            throw new Error('No se pudo obtener el token de autenticación');
+        }
 
-      const result = await response.json();
+        const requestBody = {
+            question: question,
+            page_id: currentPageData?.id
+        };
 
-      showError("AI responded successfully!", "success");
+        const url = `${AI_SERVICE_URL}/${mode}`;
+        console.log('URL completa:', url);
+        console.log('Headers:', {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        });
+        console.log('Body:', requestBody);
 
-      return result
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: "Error desconocido" }));
+            console.error('Error en la respuesta:', response.status, errorData);
+            throw new Error(`Error del servidor: ${response.status} - ${errorData.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data;
     } catch (error) {
-      console.error("Error asking AI:", error);
-      showError(`Error communicating with AI assistant: ${error.message}`, "danger");
-    } finally {
-      submitAiQuestionButton.disabled = false;
-      submitAiQuestionButton.innerHTML = 'Ask AI';
+        console.error('Error en askAiQuestion:', error);
+        showError(`Error al comunicarse con el asistente: ${error.message}`, "danger");
+        throw error;
     }
   }
 
